@@ -121,6 +121,7 @@ public class RubiksCube {
     /* Prints the current state of the cube */
     public void printCube() {
         char[][] cubeArr =  new char[9][12]; // 9 rows, each with length 12
+        initializeWithPlaceholders(cubeArr);
         fillRows(cubeArr);
         print2DArray(cubeArr);
     }
@@ -185,6 +186,15 @@ public class RubiksCube {
                 cubeArr[row - 1][i] = cubeMap.get(new CubePosition("blue", tdi.next()));
             } else {
                 cubeArr[row - 1][i] = cubeMap.get(new CubePosition("yellow", tdi.next()));
+            }
+        }
+    }
+
+    /* Initializes the 2D array to all empty chars as placeholders */
+    private void initializeWithPlaceholders(char[][] arr) {
+        for (int row = 0; row < arr.length; row += 1) {
+            for (int index = 0; index < arr[row].length; index += 1) {
+                arr[row][index] = '-';
             }
         }
     }
