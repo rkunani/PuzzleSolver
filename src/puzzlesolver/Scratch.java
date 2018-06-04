@@ -9,6 +9,7 @@ public class Scratch {
             System.out.println(nextNum(i, firstNum, lastNum));
         }
         */
+
         /* Printing a 2-D array
         int[][] arr = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};
         for (int[] row: arr) {
@@ -17,6 +18,10 @@ public class Scratch {
             }
             System.out.println();
         } */
+
+        /* Testing printing */
+        RubiksCube cube = new RubiksCube(false);
+        cube.printCube();
     }
 
     /**
