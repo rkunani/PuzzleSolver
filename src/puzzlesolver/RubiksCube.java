@@ -14,6 +14,28 @@ public class RubiksCube {
             this.face = face;
             this.position = position;
         }
+
+        /* Two CubePositions are equal if they have the same
+        FACE and POSITION.
+         */
+        @Override
+        public boolean equals(Object other) {
+            if (this.getClass() != other.getClass()) {
+                return false;
+            }
+            CubePosition otherCube = (CubePosition) other;
+            boolean faceEqual = this.face.equals(otherCube.face);
+            boolean posEqual = this.position == otherCube.position;
+            return faceEqual && posEqual;
+        }
+
+        /* HashCode defined this way to allow retrieval from cubeMap */
+        @Override
+        public int hashCode() {
+            int stringHash = this.face.hashCode();
+            int posHash = this.position;
+            return stringHash + posHash;
+        }
     }
 
     private HashMap<CubePosition, Character> cubeMap;
@@ -61,6 +83,15 @@ public class RubiksCube {
 
     }
 
+    /**
+     * Returns the number after X in the cycle of consecutive
+     * integers from firstNum to lastNum, inclusive.
+     */
+    private int nextNum(int x, int firstNum, int lastNum) {
+        int seqLength = (lastNum - firstNum) + 1;
+        return ((x - 1) % seqLength) + firstNum; // (x - 1) because first number is 1, not 0
+    }
+
     ///////////////////
     /* OTHER METHODS */
     ///////////////////
@@ -79,5 +110,10 @@ public class RubiksCube {
     /* Scrambles the Rubik's Cube */
     public void scramble() {
         // random number of random rotations to the cube
+    }
+
+    /* Prints the current state of the cube */
+    public void printCube() {
+
     }
 }
