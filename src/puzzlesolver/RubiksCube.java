@@ -41,11 +41,15 @@ public class RubiksCube {
     }
 
     private HashMap<CubePosition, Character> cubeMap;
+    private char[][] cubeArr;
 
     /* Creates a solved Rubik's Cube. If scrambled == true, scrambles the solved cube. */
     public RubiksCube(boolean scramble) {
         cubeMap = new HashMap<>();
         initializeCubeMap();
+        cubeArr =  new char[9][12]; // 9 rows, each with length 12
+        initializeWithPlaceholders(cubeArr);
+        updateCubeArr();
         if (scramble) {
             scramble();
         }
@@ -80,9 +84,9 @@ public class RubiksCube {
         }
     }
 
-    //////////////////////
-    /* ROTATION METHODS */
-    //////////////////////
+    ///////////////////////
+    /* ROTATING THE CUBE */
+    ///////////////////////
 
     /* Rotates the front face (white) 90 degrees clockwise */
     public void front() {
@@ -98,32 +102,22 @@ public class RubiksCube {
         return ((x - 1) % seqLength) + firstNum; // (x - 1) because first number is 1, not 0
     }
 
-    ///////////////////
-    /* OTHER METHODS */
-    ///////////////////
-
-    /* Resets the cube to a solved state */
-    public void resetCube() {
-        cubeMap.clear();
-        new RubiksCube(false);
-    }
-
-    /* Undoes the previous move */
-    public void undoMove() {
-        // keep a Stack of HashMaps, pop off stack?
-    }
-
-    /* Scrambles the Rubik's Cube */
-    public void scramble() {
-        // random number of random rotations to the cube
-    }
+    ///////////////////////
+    /* PRINTING THE CUBE */
+    ///////////////////////
 
     /* Prints the current state of the cube */
     public void printCube() {
-        char[][] cubeArr =  new char[9][12]; // 9 rows, each with length 12
-        initializeWithPlaceholders(cubeArr);
-        fillRows(cubeArr);
         print2DArray(cubeArr);
+    }
+
+    /////////////////////////////
+    /* UPDATING THE CUBE ARRAY */
+    /////////////////////////////
+
+    /* Updates cubeArr to match cubeMap */
+    private void updateCubeArr() {
+        fillRows(cubeArr);
     }
 
     /* Fills the rows of the 2D array representing the cube */
@@ -209,4 +203,23 @@ public class RubiksCube {
         }
     }
 
+    ///////////////////
+    /* OTHER METHODS */
+    ///////////////////
+
+    /* Resets the cube to a solved state */
+    public void resetCube() {
+        cubeMap.clear();
+        new RubiksCube(false);
+    }
+
+    /* Undoes the previous move */
+    public void undoMove() {
+        // keep a Stack of HashMaps, pop off stack?
+    }
+
+    /* Scrambles the Rubik's Cube */
+    public void scramble() {
+        // random number of random rotations to the cube
+    }
 }
