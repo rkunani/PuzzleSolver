@@ -5,7 +5,8 @@ import java.util.HashMap;
 /* A 3x3 Rubik's Cube */
 public class RubiksCube {
 
-    /* Each CubePosition corresponds to a "sticker" on a Rubik's Cube */
+    /* Each CubePosition corresponds to a static location on a Rubik's Cube
+     * (e.g. the bottom left square on the orange face) */
     private class CubePosition {
         String face;
         int position;
@@ -90,7 +91,6 @@ public class RubiksCube {
 
     /* Rotates the front face (white) 90 degrees clockwise */
     public void front() {
-
     }
 
     /**
@@ -108,6 +108,7 @@ public class RubiksCube {
 
     /* Prints the current state of the cube */
     public void printCube() {
+        System.out.println("Current state of the cube:");
         print2DArray(cubeArr);
     }
 

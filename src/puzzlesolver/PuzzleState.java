@@ -13,5 +13,5 @@ public interface PuzzleState {
     public Iterable<PuzzleState> adjacentStates();
 
     /* Generates a readable representation of the PuzzleState */
-    //public String toString();
+    public void printState();
 }
