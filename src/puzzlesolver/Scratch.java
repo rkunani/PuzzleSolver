@@ -22,6 +22,10 @@ public class Scratch {
         /* Testing printing */
         RubiksCube cube = new RubiksCube(false);
         cube.printCube();
+        cube.rotate("blue", "cw");
+        cube.rotate("white", "ccw");
+        cube.rotate("red", "cw");
+        cube.printCube();
     }
 
     /**

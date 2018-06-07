@@ -1,6 +1,8 @@
 package puzzlesolver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /* A 3x3 Rubik's Cube */
 public class RubiksCube {
@@ -41,8 +43,12 @@ public class RubiksCube {
         }
     }
 
-    private HashMap<CubePosition, Character> cubeMap;
+    private HashMap<CubePosition, Character> cubeMap; // core representation of the cube
     private char[][] cubeArr;
+    private PieceSequence ps;
+    private HashMap<String, FaceSequence> faceMap;
+    // private list of strings to keep track of previous moves
+    private HashMap<String, List<CubePosition>> adjCubePositions;
 
     /* Creates a solved Rubik's Cube. If scrambled == true, scrambles the solved cube. */
     public RubiksCube(boolean scramble) {
@@ -51,6 +57,11 @@ public class RubiksCube {
         cubeArr =  new char[9][12]; // 9 rows, each with length 12
         initializeWithPlaceholders(cubeArr);
         updateCubeArr();
+        ps = new PieceSequence();
+        faceMap = new HashMap<>();
+        populateFaceMap();
+        adjCubePositions = new HashMap<>();
+        populateAdjCubePositions();
         if (scramble) {
             scramble();
         }
@@ -85,21 +96,136 @@ public class RubiksCube {
         }
     }
 
+    /* Appropriately fills faceMap */
+    private void populateFaceMap() {
+        faceMap.put("white", new FaceSequence("orange", "blue", "red", "green"));
+        faceMap.put("orange", new FaceSequence("yellow", "blue", "white", "green"));
+        faceMap.put("yellow", new FaceSequence("red", "blue", "orange", "green"));
+        faceMap.put("red", new FaceSequence("white", "blue", "yellow", "green"));
+        faceMap.put("green", new FaceSequence("white", "red", "yellow", "orange"));
+        faceMap.put("blue", new FaceSequence("white", "orange", "yellow", "red"));
+    }
+
+    /* Appropriately fills adjCubePositions */
+    private void populateAdjCubePositions() {
+        // white
+        List<CubePosition> whiteList = new ArrayList<>();
+        whiteList.add(new CubePosition("orange", 8));
+        whiteList.add(new CubePosition("orange", 4));
+        whiteList.add(new CubePosition("orange", 7));
+        whiteList.add(new CubePosition("blue", 5));
+        whiteList.add(new CubePosition("blue", 1));
+        whiteList.add(new CubePosition("blue", 8));
+        whiteList.add(new CubePosition("red", 6));
+        whiteList.add(new CubePosition("red", 2));
+        whiteList.add(new CubePosition("red", 5));
+        whiteList.add(new CubePosition("green", 7));
+        whiteList.add(new CubePosition("green", 3));
+        whiteList.add(new CubePosition("green", 6));
+        adjCubePositions.put("white", whiteList);
+        // green
+        List<CubePosition> greenList = new ArrayList<>();
+        ThreeDigitIterator tdi = new ThreeDigitIterator(5, 1, 8);
+        List<String> greenAdjFaces = faceMap.get("green").toList();
+        for (String adjFace: greenAdjFaces) {
+            if (adjFace.equals("yellow")) {
+                greenList.add(new CubePosition("yellow", 6));
+                greenList.add(new CubePosition("yellow", 3));
+                greenList.add(new CubePosition("yellow", 7));
+            } else {
+                for (int i = 0; i < 3; i += 1) {
+                    greenList.add(new CubePosition(adjFace, tdi.next()));
+                }
+            }
+        }
+        adjCubePositions.put("green", greenList);
+        // orange
+        List<CubePosition> orangeList = new ArrayList<>();
+        tdi = new ThreeDigitIterator(5, 2, 6);
+        List<String> orangeAdjFaces = faceMap.get("orange").toList();
+        for (String adjFace: orangeAdjFaces) {
+            for (int i = 0; i < 3; i += 1) {
+                orangeList.add(new CubePosition(adjFace, tdi.next()));
+            }
+        }
+        adjCubePositions.put("orange", orangeList);
+        // red
+        List<CubePosition> redList = new ArrayList<>();
+        tdi = new ThreeDigitIterator(8, 4, 7);
+        List<String> redAdjFaces = faceMap.get("red").toList();
+        for (String adjFace: redAdjFaces) {
+            for (int i = 0; i < 3; i += 1) {
+                redList.add(new CubePosition(adjFace, tdi.next()));
+            }
+        }
+        adjCubePositions.put("red", redList);
+        // blue
+        List<CubePosition> blueList = new ArrayList<>();
+        tdi = new ThreeDigitIterator(6, 3, 7);
+        List<String> blueAdjFaces = faceMap.get("blue").toList();
+        for (String adjFace: blueAdjFaces) {
+            if (adjFace.equals("yellow")) {
+                blueList.add(new CubePosition("yellow", 5));
+                blueList.add(new CubePosition("yellow", 1));
+                blueList.add(new CubePosition("yellow", 8));
+            } else {
+                for (int i = 0; i < 3; i += 1) {
+                    blueList.add(new CubePosition(adjFace, tdi.next()));
+                }
+            }
+        }
+        adjCubePositions.put("blue", blueList);
+        // yellow
+        List<CubePosition> yellowList = new ArrayList<>();
+        yellowList.add(new CubePosition("red", 8));
+        yellowList.add(new CubePosition("red", 4));
+        yellowList.add(new CubePosition("red", 7));
+        yellowList.add(new CubePosition("blue", 6));
+        yellowList.add(new CubePosition("blue", 3));
+        yellowList.add(new CubePosition("blue", 7));
+        yellowList.add(new CubePosition("orange", 5));
+        yellowList.add(new CubePosition("orange", 2));
+        yellowList.add(new CubePosition("orange", 6));
+        yellowList.add(new CubePosition("green", 5));
+        yellowList.add(new CubePosition("green", 1));
+        yellowList.add(new CubePosition("green", 8));
+        adjCubePositions.put("yellow", yellowList);
+    }
+
     ///////////////////////
     /* ROTATING THE CUBE */
     ///////////////////////
 
-    /* Rotates the front face (white) 90 degrees clockwise */
-    public void front() {
-    }
-
-    /**
-     * Returns the number after X in the cycle of consecutive
-     * integers from firstNum to lastNum, inclusive.
-     */
-    private int nextNum(int x, int firstNum, int lastNum) {
-        int seqLength = (lastNum - firstNum) + 1;
-        return ((x - 1) % seqLength) + firstNum; // (x - 1) because first number is 1, not 0
+    /* Rotates the given FACE in the given DIRECTION */
+    public void rotate(String face, String direction) {
+        HashMap<CubePosition, Character> tempMap = (HashMap<CubePosition, Character>) cubeMap.clone();
+        for (int i = 1; i <= 8; i += 1) { // update face values
+            int nextPos;
+            char value;
+            if (i <= 4) { // edge
+                nextPos = ps.nextEdge(face, face, i, direction);
+                value = tempMap.get(new CubePosition(face, i));
+            } else { // corner
+                value = tempMap.get(new CubePosition(face, i));
+                nextPos = ps.nextCorner(face, face, i, direction);
+            }
+            cubeMap.put(new CubePosition(face, nextPos), value);
+        }
+        List<CubePosition> adjPositions = adjCubePositions.get(face);
+        for (CubePosition cp: adjPositions) { // update adjacent face values
+            String oldFace = cp.face;
+            int pos = cp.position;
+            String nextFace = faceMap.get(face).nextFace(oldFace, direction);
+            int nextPos;
+            if (pos <= 4) {
+                nextPos = ps.nextEdge(face, nextFace, pos, direction);
+            } else {
+                nextPos = ps.nextCorner(face, nextFace, pos, direction);
+            }
+            char value = tempMap.get(cp);
+            cubeMap.put(new CubePosition(nextFace, nextPos), value);
+        }
+        updateCubeArr();
     }
 
     ///////////////////////
@@ -110,6 +236,7 @@ public class RubiksCube {
     public void printCube() {
         System.out.println("Current state of the cube:");
         print2DArray(cubeArr);
+        System.out.println();
     }
 
     /////////////////////////////
