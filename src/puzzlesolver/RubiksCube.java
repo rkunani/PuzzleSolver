@@ -67,6 +67,159 @@ public class RubiksCube {
         }
     }
 
+    ///////////////////////
+    /* ROTATING THE CUBE */
+    ///////////////////////
+
+    /* Rotates the given FACE in the given DIRECTION */
+    public void rotate(String face, String direction) {
+        HashMap<CubePosition, Character> tempMap = (HashMap<CubePosition, Character>) cubeMap.clone();
+        for (int i = 1; i <= 8; i += 1) { // update face values
+            int nextPos;
+            char value;
+            if (i <= 4) { // edge
+                nextPos = ps.nextEdge(face, face, i, direction);
+                value = tempMap.get(new CubePosition(face, i));
+            } else { // corner
+                value = tempMap.get(new CubePosition(face, i));
+                nextPos = ps.nextCorner(face, face, i, direction);
+            }
+            cubeMap.put(new CubePosition(face, nextPos), value);
+        }
+        List<CubePosition> adjPositions = adjCubePositions.get(face);
+        for (CubePosition cp: adjPositions) { // update adjacent face values
+            String oldFace = cp.face;
+            int pos = cp.position;
+            String nextFace = faceMap.get(face).nextFace(oldFace, direction);
+            int nextPos;
+            if (pos <= 4) {
+                nextPos = ps.nextEdge(face, nextFace, pos, direction);
+            } else {
+                nextPos = ps.nextCorner(face, nextFace, pos, direction);
+            }
+            char value = tempMap.get(cp);
+            cubeMap.put(new CubePosition(nextFace, nextPos), value);
+        }
+        updateCubeArr();
+    }
+
+    //////////////////////
+    /* OTHER OPERATIONS */
+    //////////////////////
+
+    /* Resets the cube to a solved state */
+    public void resetCube() {
+        // idk how to do this
+    }
+
+    /* Undoes the previous move */
+    public void undoMove() {
+        // keep a Stack of HashMaps, pop off stack?
+    }
+
+    /* Scrambles the Rubik's Cube */
+    public void scramble() {
+        // random number of random rotations to the cube
+    }
+
+    /////////////////////////////
+    /* UPDATING THE CUBE ARRAY */
+    /////////////////////////////
+
+    /* Updates cubeArr to match cubeMap */
+    private void updateCubeArr() {
+        fillRows(cubeArr);
+    }
+
+    /* Fills the rows of the 2D array representing the cube */
+    private void fillRows(char[][] cubeArr) {
+        for (int row = 1; row <= 9; row += 1) {
+            if (row <= 3) {
+                fillTopOrBottom(cubeArr, row, "orange");
+            } else if (row >= 7) {
+                fillTopOrBottom(cubeArr, row, "red");
+            } else {
+                fillMiddle(cubeArr, row);
+            }
+        }
+    }
+
+    /* Fills the top and bottom faces of the cube */
+    private void fillTopOrBottom(char[][] cubeArr, int row, String face) {
+        if (row == 1 || row == 7) {
+            cubeArr[row - 1][3] = cubeMap.get(new CubePosition(face, 5));
+            cubeArr[row - 1][4] = cubeMap.get(new CubePosition(face, 2));
+            cubeArr[row - 1][5] = cubeMap.get(new CubePosition(face, 6));
+        }
+        if (row == 2 || row == 8) {
+            cubeArr[row - 1][3] = cubeMap.get(new CubePosition(face, 1));
+            cubeArr[row - 1][4] = cubeMap.get(new CubePosition(face, 9));
+            cubeArr[row - 1][5] = cubeMap.get(new CubePosition(face, 3));
+        }
+        if (row == 3 || row == 9) {
+            cubeArr[row - 1][3] = cubeMap.get(new CubePosition(face, 8));
+            cubeArr[row - 1][4] = cubeMap.get(new CubePosition(face, 4));
+            cubeArr[row - 1][5] = cubeMap.get(new CubePosition(face, 7));
+        }
+    }
+
+    /* Fills the middle faces of the cube */
+    private void fillMiddle(char[][] cubeArr, int row) {
+        ThreeDigitIterator tdi;
+        if (row == 4) {
+            tdi = new ThreeDigitIterator(5, 2, 6);
+            fillRow(cubeArr, tdi, row);
+        }
+        if (row == 5) {
+            tdi = new ThreeDigitIterator(1, 9, 3);
+            fillRow(cubeArr, tdi, row);
+        }
+        if (row == 6) {
+            tdi = new ThreeDigitIterator(8, 4, 7);
+            fillRow(cubeArr, tdi, row);
+        }
+    }
+
+    /* Helps with segmentation of middle faces */
+    private void fillRow(char[][] cubeArr, ThreeDigitIterator tdi, int row) {
+        for (int i = 0; i < 12; i += 1) {
+            if (i <= 2) {
+                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("green", tdi.next()));
+            } else if (i <= 5) {
+                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("white", tdi.next()));
+            } else if (i <= 8) {
+                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("blue", tdi.next()));
+            } else {
+                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("yellow", tdi.next()));
+            }
+        }
+    }
+
+    ///////////////////////
+    /* PRINTING THE CUBE */
+    ///////////////////////
+
+    /* Prints the current state of the cube */
+    public void printCube() {
+        System.out.println("Current state of the cube:");
+        print2DArray(cubeArr);
+        System.out.println();
+    }
+
+    /* Prints a 2D char array */
+    private void print2DArray(char[][] arr) {
+        for (char[] row: arr) {
+            for (char c: row) {
+                System.out.print(c + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    ////////////////////////////////
+    /* CONSTRUCTOR HELPER METHODS */
+    ////////////////////////////////
+
     /* Initializes cubeMap to a solved state */
     private void initializeCubeMap() {
         CubePosition toPut;
@@ -192,126 +345,6 @@ public class RubiksCube {
         adjCubePositions.put("yellow", yellowList);
     }
 
-    ///////////////////////
-    /* ROTATING THE CUBE */
-    ///////////////////////
-
-    /* Rotates the given FACE in the given DIRECTION */
-    public void rotate(String face, String direction) {
-        HashMap<CubePosition, Character> tempMap = (HashMap<CubePosition, Character>) cubeMap.clone();
-        for (int i = 1; i <= 8; i += 1) { // update face values
-            int nextPos;
-            char value;
-            if (i <= 4) { // edge
-                nextPos = ps.nextEdge(face, face, i, direction);
-                value = tempMap.get(new CubePosition(face, i));
-            } else { // corner
-                value = tempMap.get(new CubePosition(face, i));
-                nextPos = ps.nextCorner(face, face, i, direction);
-            }
-            cubeMap.put(new CubePosition(face, nextPos), value);
-        }
-        List<CubePosition> adjPositions = adjCubePositions.get(face);
-        for (CubePosition cp: adjPositions) { // update adjacent face values
-            String oldFace = cp.face;
-            int pos = cp.position;
-            String nextFace = faceMap.get(face).nextFace(oldFace, direction);
-            int nextPos;
-            if (pos <= 4) {
-                nextPos = ps.nextEdge(face, nextFace, pos, direction);
-            } else {
-                nextPos = ps.nextCorner(face, nextFace, pos, direction);
-            }
-            char value = tempMap.get(cp);
-            cubeMap.put(new CubePosition(nextFace, nextPos), value);
-        }
-        updateCubeArr();
-    }
-
-    ///////////////////////
-    /* PRINTING THE CUBE */
-    ///////////////////////
-
-    /* Prints the current state of the cube */
-    public void printCube() {
-        System.out.println("Current state of the cube:");
-        print2DArray(cubeArr);
-        System.out.println();
-    }
-
-    /////////////////////////////
-    /* UPDATING THE CUBE ARRAY */
-    /////////////////////////////
-
-    /* Updates cubeArr to match cubeMap */
-    private void updateCubeArr() {
-        fillRows(cubeArr);
-    }
-
-    /* Fills the rows of the 2D array representing the cube */
-    private void fillRows(char[][] cubeArr) {
-        for (int row = 1; row <= 9; row += 1) {
-            if (row <= 3) {
-                fillTopOrBottom(cubeArr, row, "orange");
-            } else if (row >= 7) {
-                fillTopOrBottom(cubeArr, row, "red");
-            } else {
-                fillMiddle(cubeArr, row);
-            }
-        }
-    }
-
-    /* Fills the top and bottom faces of the cube */
-    private void fillTopOrBottom(char[][] cubeArr, int row, String face) {
-        if (row == 1 || row == 7) {
-            cubeArr[row - 1][3] = cubeMap.get(new CubePosition(face, 5));
-            cubeArr[row - 1][4] = cubeMap.get(new CubePosition(face, 2));
-            cubeArr[row - 1][5] = cubeMap.get(new CubePosition(face, 6));
-        }
-        if (row == 2 || row == 8) {
-            cubeArr[row - 1][3] = cubeMap.get(new CubePosition(face, 1));
-            cubeArr[row - 1][4] = cubeMap.get(new CubePosition(face, 9));
-            cubeArr[row - 1][5] = cubeMap.get(new CubePosition(face, 3));
-        }
-        if (row == 3 || row == 9) {
-            cubeArr[row - 1][3] = cubeMap.get(new CubePosition(face, 8));
-            cubeArr[row - 1][4] = cubeMap.get(new CubePosition(face, 4));
-            cubeArr[row - 1][5] = cubeMap.get(new CubePosition(face, 7));
-        }
-    }
-
-    /* Fills the middle faces of the cube */
-    private void fillMiddle(char[][] cubeArr, int row) {
-        ThreeDigitIterator tdi;
-        if (row == 4) {
-            tdi = new ThreeDigitIterator(5, 2, 6);
-            fillRow(cubeArr, tdi, row);
-        }
-        if (row == 5) {
-            tdi = new ThreeDigitIterator(1, 9, 3);
-            fillRow(cubeArr, tdi, row);
-        }
-        if (row == 6) {
-            tdi = new ThreeDigitIterator(8, 4, 7);
-            fillRow(cubeArr, tdi, row);
-        }
-    }
-
-    /* Helps with segmentation of middle faces */
-    private void fillRow(char[][] cubeArr, ThreeDigitIterator tdi, int row) {
-        for (int i = 0; i < 12; i += 1) {
-            if (i <= 2) {
-                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("green", tdi.next()));
-            } else if (i <= 5) {
-                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("white", tdi.next()));
-            } else if (i <= 8) {
-                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("blue", tdi.next()));
-            } else {
-                cubeArr[row - 1][i] = cubeMap.get(new CubePosition("yellow", tdi.next()));
-            }
-        }
-    }
-
     /* Initializes the 2D array to all empty chars as placeholders */
     private void initializeWithPlaceholders(char[][] arr) {
         for (int row = 0; row < arr.length; row += 1) {
@@ -319,35 +352,5 @@ public class RubiksCube {
                 arr[row][index] = '-';
             }
         }
-    }
-
-    /* Prints a 2D char array */
-    private void print2DArray(char[][] arr) {
-        for (char[] row: arr) {
-            for (char c: row) {
-                System.out.print(c + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    ///////////////////
-    /* OTHER METHODS */
-    ///////////////////
-
-    /* Resets the cube to a solved state */
-    public void resetCube() {
-        cubeMap.clear();
-        new RubiksCube(false);
-    }
-
-    /* Undoes the previous move */
-    public void undoMove() {
-        // keep a Stack of HashMaps, pop off stack?
-    }
-
-    /* Scrambles the Rubik's Cube */
-    public void scramble() {
-        // random number of random rotations to the cube
     }
 }

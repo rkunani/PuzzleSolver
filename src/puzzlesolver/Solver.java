@@ -9,20 +9,20 @@ public class Solver {
     private class PSNode implements Comparable<PSNode> {
         PuzzleState ps;
         int distFromStart;
-        int distToGoal;
+        int distToSolved;
         PSNode prev;
 
         PSNode(PuzzleState pstate, int distFromStart, PSNode prev) {
             ps = pstate;
             this.distFromStart = distFromStart;
-            this.distToGoal = ps.distToGoal();
+            this.distToSolved = ps.distToSolved();
             this.prev = prev;
         }
 
         /* Defines the priority of a PSNode; implements Comparable interface */
         public int compareTo(PSNode other) {
-            int myPriority = this.distFromStart + this.distToGoal;
-            int otherPriority = other.distFromStart + other.distToGoal;
+            int myPriority = this.distFromStart + this.distToSolved;
+            int otherPriority = other.distFromStart + other.distToSolved;
             return myPriority - otherPriority;
         }
     }
@@ -38,7 +38,7 @@ public class Solver {
         fringe.add(startNode);
 
         PSNode bestNode = fringe.poll();
-        while(!(bestNode.ps.isGoal())) {
+        while(!(bestNode.ps.isSolved())) {
             for (PuzzleState adjState: bestNode.ps.adjacentStates()) {
                 if (bestNode.prev == null) {
                     fringe.add(new PSNode(adjState, bestNode.distFromStart + 1, bestNode));

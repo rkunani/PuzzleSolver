@@ -26,6 +26,8 @@ public class Scratch {
         cube.rotate("white", "ccw");
         cube.rotate("red", "cw");
         cube.printCube();
+        cube.resetCube();
+        cube.printCube();
     }
 
     /**
