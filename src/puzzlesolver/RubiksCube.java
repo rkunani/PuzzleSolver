@@ -1,11 +1,9 @@
 package puzzlesolver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /* A 3x3 Rubik's Cube */
-public class RubiksCube {
+public class RubiksCube implements PuzzleState {
 
     /* Each CubePosition corresponds to a static location on a Rubik's Cube
      * (e.g. the bottom left square on the orange face) */
@@ -49,22 +47,21 @@ public class RubiksCube {
     private HashMap<String, FaceSequence> faceMap;
     // private list of strings to keep track of previous moves
     private HashMap<String, List<CubePosition>> adjCubePositions;
+    private HashMap<Integer, Move> moveMap;
+    private Stack<HashMap<CubePosition, Character>> moveStack;
+    private Random myRandom;
 
-    /* Creates a solved Rubik's Cube. If scrambled == true, scrambles the solved cube. */
-    public RubiksCube(boolean scramble) {
+    /* Creates a solved Rubik's Cube */
+    public RubiksCube() {
         cubeMap = new HashMap<>();
         initializeCubeMap();
-        cubeArr =  new char[9][12]; // 9 rows, each with length 12
-        initializeWithPlaceholders(cubeArr);
-        updateCubeArr();
-        ps = new PieceSequence();
-        faceMap = new HashMap<>();
-        populateFaceMap();
-        adjCubePositions = new HashMap<>();
-        populateAdjCubePositions();
-        if (scramble) {
-            scramble();
-        }
+        makeCube();
+    }
+
+    /* Creates a Rubik's Cube with the same state as RC */
+    public RubiksCube(RubiksCube rc) {
+        this.cubeMap = rc.cubeMap;
+        makeCube();
     }
 
     ///////////////////////
@@ -100,7 +97,42 @@ public class RubiksCube {
             char value = tempMap.get(cp);
             cubeMap.put(new CubePosition(nextFace, nextPos), value);
         }
+        moveStack.push(cubeMap); // invariant: the top element of the stack is always the current state
         updateCubeArr();
+    }
+
+    /////////////////////////////////////////////
+    /* IMPLEMENTING THE PUZZLE STATE INTERFACE */
+    /////////////////////////////////////////////
+
+    public Iterable<PuzzleState> adjacentStates() {
+        List<PuzzleState> adjacent = new ArrayList<>();
+        for (int i = 1; i <= 12; i += 1) {
+            Move move = moveMap.get(i);
+            String face = move.face;
+            String direction = move.direction;
+            rotate(face, direction);
+            adjacent.add(new RubiksCube(this));
+            undoMove();
+        }
+        return adjacent;
+    }
+
+    public int distToSolved() {
+        Set<CubePosition> cubePositions = cubeMap.keySet();
+        int numOutOfPlace = 0;
+        for (CubePosition cp: cubePositions) {
+            char value = cubeMap.get(cp);
+            String face = cp.face;
+            if (face.charAt(0) != value) {
+                numOutOfPlace += 1;
+            }
+        }
+        return numOutOfPlace;
+    }
+
+    public void printState() {
+        printCube();
     }
 
     //////////////////////
@@ -114,12 +146,22 @@ public class RubiksCube {
 
     /* Undoes the previous move */
     public void undoMove() {
-        // keep a Stack of HashMaps, pop off stack?
+        moveStack.pop(); // removes the current state from the stack
+        cubeMap = moveStack.peek(); // restores the state before the current state
+        updateCubeArr();
     }
 
-    /* Scrambles the Rubik's Cube */
+    /* Scrambles the Rubik's Cube with a minimum
+     * of 15 moves and a maximum of 25 moves */
     public void scramble() {
-        // random number of random rotations to the cube
+        int numMoves = myRandom.nextInt(25) + 15;
+        for (int i = 0; i < numMoves; i += 1) {
+            int moveNum = myRandom.nextInt(12) + 1;
+            Move move = moveMap.get(moveNum);
+            String face = move.face;
+            String direction = move.direction;
+            rotate(face, direction);
+        }
     }
 
     /////////////////////////////
@@ -352,5 +394,38 @@ public class RubiksCube {
                 arr[row][index] = '-';
             }
         }
+    }
+
+    /* Associates numbers and moves */
+    private void populateMoveMap() {
+        moveMap.put(1, new Move("white", "cw"));
+        moveMap.put(2, new Move("white", "ccw"));
+        moveMap.put(3, new Move("yellow", "cw"));
+        moveMap.put(4, new Move("yellow", "ccw"));
+        moveMap.put(5, new Move("green", "cw"));
+        moveMap.put(6, new Move("green", "ccw"));
+        moveMap.put(7, new Move("blue", "cw"));
+        moveMap.put(8, new Move("blue", "ccw"));
+        moveMap.put(9, new Move("red", "cw"));
+        moveMap.put(10, new Move("red", "ccw"));
+        moveMap.put(11, new Move("orange", "cw"));
+        moveMap.put(12, new Move("orange", "ccw"));
+    }
+
+    /* Initializes the fields */
+    private void makeCube() {
+        cubeArr =  new char[9][12]; // 9 rows, each with length 12
+        initializeWithPlaceholders(cubeArr);
+        updateCubeArr();
+        ps = new PieceSequence();
+        faceMap = new HashMap<>();
+        populateFaceMap();
+        adjCubePositions = new HashMap<>();
+        populateAdjCubePositions();
+        moveMap = new HashMap<>();
+        populateMoveMap();
+        moveStack = new Stack<>();
+        moveStack.push(cubeMap); // pushes the solved state onto the stack
+        myRandom = new Random();
     }
 }

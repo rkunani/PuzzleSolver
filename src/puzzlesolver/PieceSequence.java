@@ -16,7 +16,7 @@ public class PieceSequence {
     }
 
     public int nextEdge(String rotatingFace, String nextFace, int pos, String direction) {
-        if (rotatingFace.equals("white")) {
+        if (rotatingFace.equals("white") || rotatingFace.equals(nextFace)) {
             int arrIndex = pos - 1;
             int nextIndex;
             if (direction.equals("cw")) {
@@ -52,7 +52,7 @@ public class PieceSequence {
     }
 
     public int nextCorner(String rotatingFace, String nextFace, int pos, String direction) {
-        if (rotatingFace.equals("white")) {
+        if (rotatingFace.equals("white") || rotatingFace.equals(nextFace)) {
             int arrIndex = pos - 5;
             int nextIndex;
             if (direction.equals("cw")) {
