@@ -73,9 +73,9 @@ public class PieceSequence {
         } else if (rotatingFace.equals("blue")) {
             if (nextFace.equals("yellow")) {
                 return other(pos);
-            } else if(nextFace.equals("orange") && direction.equals("ccw")) {
+            } else if (nextFace.equals("orange") && direction.equals("ccw")) {
                 return other(pos);
-            } else if(nextFace.equals("red") && direction.equals("cw")) {
+            } else if (nextFace.equals("red") && direction.equals("cw")) {
                 return other(pos);
             } else {
                 return pos;
@@ -96,7 +96,7 @@ public class PieceSequence {
     }
 
     private int plusOne(int index) {
-        return (index + 1) % edgeArr.length; // arbitrarily chose edgeArr.length (both have same length)
+        return (index + 1) % edgeArr.length; // arbitrarily choice, both arrays same length
     }
 
     private int minusOne(int index) {

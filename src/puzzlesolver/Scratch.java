@@ -6,7 +6,9 @@ public class Scratch {
         cube.printCube();
         cube.rotate("white", "cw");
         cube.printCube();
-        cube.rotate("blue", "ccw");
+        cube.undoMove();
+        cube.printCube();
+        cube.undoMove();
         cube.printCube();
         cube.undoMove();
         cube.printCube();

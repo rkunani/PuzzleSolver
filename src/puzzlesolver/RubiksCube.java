@@ -1,6 +1,11 @@
 package puzzlesolver;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Set;
+import java.util.Stack;
 
 /* A 3x3 Rubik's Cube */
 public class RubiksCube implements PuzzleState {
@@ -97,7 +102,7 @@ public class RubiksCube implements PuzzleState {
             char value = tempMap.get(cp);
             cubeMap.put(new CubePosition(nextFace, nextPos), value);
         }
-        moveStack.push(cubeMap); // invariant: the top element of the stack is always the current state
+        moveStack.push((HashMap<CubePosition, Character>) cubeMap.clone()); // invariant: top element of the stack is always the current state
         updateCubeArr();
     }
 
@@ -146,6 +151,9 @@ public class RubiksCube implements PuzzleState {
 
     /* Undoes the previous move */
     public void undoMove() {
+        if (isSolved()) {
+            return;
+        }
         moveStack.pop(); // removes the current state from the stack
         cubeMap = moveStack.peek(); // restores the state before the current state
         updateCubeArr();
@@ -265,27 +273,27 @@ public class RubiksCube implements PuzzleState {
     /* Initializes cubeMap to a solved state */
     private void initializeCubeMap() {
         CubePosition toPut;
-        for (int i = 1; i <= 9; i +=1) {
+        for (int i = 1; i <= 9; i += 1) {
             toPut = new CubePosition("white", i);
             cubeMap.put(toPut, 'w');
         }
-        for (int i = 1; i <= 9; i +=1) {
+        for (int i = 1; i <= 9; i += 1) {
             toPut = new CubePosition("orange", i);
             cubeMap.put(toPut, 'o');
         }
-        for (int i = 1; i <= 9; i +=1) {
+        for (int i = 1; i <= 9; i += 1) {
             toPut = new CubePosition("green", i);
             cubeMap.put(toPut, 'g');
         }
-        for (int i = 1; i <= 9; i +=1) {
+        for (int i = 1; i <= 9; i += 1) {
             toPut = new CubePosition("blue", i);
             cubeMap.put(toPut, 'b');
         }
-        for (int i = 1; i <= 9; i +=1) {
+        for (int i = 1; i <= 9; i += 1) {
             toPut = new CubePosition("yellow", i);
             cubeMap.put(toPut, 'y');
         }
-        for (int i = 1; i <= 9; i +=1) {
+        for (int i = 1; i <= 9; i += 1) {
             toPut = new CubePosition("red", i);
             cubeMap.put(toPut, 'r');
         }
@@ -425,7 +433,7 @@ public class RubiksCube implements PuzzleState {
         moveMap = new HashMap<>();
         populateMoveMap();
         moveStack = new Stack<>();
-        moveStack.push(cubeMap); // pushes the solved state onto the stack
+        moveStack.push((HashMap<CubePosition, Character>) cubeMap.clone()); // pushes the solved state onto the stack
         myRandom = new Random();
     }
 }

@@ -38,7 +38,7 @@ public class Solver {
         fringe.add(startNode);
 
         PSNode bestNode = fringe.poll();
-        while(!(bestNode.ps.isSolved())) {
+        while (!(bestNode.ps.isSolved())) {
             for (PuzzleState adjState: bestNode.ps.adjacentStates()) {
                 if (bestNode.prev == null) {
                     fringe.add(new PSNode(adjState, bestNode.distFromStart + 1, bestNode));
