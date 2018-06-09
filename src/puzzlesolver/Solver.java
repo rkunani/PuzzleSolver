@@ -40,13 +40,9 @@ public class Solver {
         PSNode bestNode = fringe.poll();
         while (!(bestNode.ps.isSolved())) {
             for (PuzzleState adjState: bestNode.ps.adjacentStates()) {
-                if (bestNode.prev == null) {
-                    fringe.add(new PSNode(adjState, bestNode.distFromStart + 1, bestNode));
-                } else {
-                    if (bestNode.prev.ps.equals(adjState)) {
-                        continue; // do not reconsider the previous node's PuzzleState
-                    }
-                    fringe.add(new PSNode(adjState, bestNode.distFromStart + 1, bestNode));
+                PSNode toAdd = new PSNode(adjState, bestNode.distFromStart + 1, bestNode);
+                if (bestNode.prev == null || !toAdd.ps.equals(bestNode.prev.ps)) {
+                    fringe.add(toAdd);
                 }
             }
             bestNode = fringe.poll();
@@ -56,6 +52,7 @@ public class Solver {
             solution.addFirst(bestNode.ps);
             bestNode = bestNode.prev;
         }
+        System.out.println("Found a solution!");
     }
 
     /* Returns the number of moves needed to solve the PuzzleState */
@@ -65,6 +62,6 @@ public class Solver {
 
     /* Prints the steps to the solved state */
     public void printSolution() {
-        // uses the solution linked list
+
     }
 }

@@ -14,4 +14,7 @@ public interface PuzzleState {
 
     /* Generates a readable representation of the PuzzleState */
     void printState();
+
+    /* Tests for equality of two PuzzleStates */
+    boolean equals(PuzzleState other);
 }

@@ -1,11 +1,7 @@
 package puzzlesolver;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Set;
-import java.util.Stack;
+import javax.annotation.processing.SupportedSourceVersion;
+import java.util.*;
 
 /* A 3x3 Rubik's Cube */
 public class RubiksCube implements PuzzleState {
@@ -48,13 +44,13 @@ public class RubiksCube implements PuzzleState {
 
     private HashMap<CubePosition, Character> cubeMap; // core representation of the cube
     private char[][] cubeArr;
-    private PieceSequence ps;
-    private HashMap<String, FaceSequence> faceMap;
+    private static PieceSequence ps;
+    private static HashMap<String, FaceSequence> faceMap;
     // private list of strings to keep track of previous moves
-    private HashMap<String, List<CubePosition>> adjCubePositions;
-    private HashMap<Integer, Move> moveMap;
-    private Stack<HashMap<CubePosition, Character>> moveStack;
-    private Random myRandom;
+    private static HashMap<String, List<CubePosition>> adjCubePositions;
+    private static HashMap<Integer, Move> moveMap;
+    private Stack<char[][]> moveStack;
+    private static Random myRandom;
 
     /* Creates a solved Rubik's Cube */
     public RubiksCube() {
@@ -65,8 +61,7 @@ public class RubiksCube implements PuzzleState {
 
     /* Creates a Rubik's Cube with the same state as RC */
     public RubiksCube(RubiksCube rc) {
-        this.cubeMap = rc.cubeMap;
-        makeCube();
+        transferNonStaticFieldsFrom(rc);
     }
 
     ///////////////////////
@@ -75,15 +70,15 @@ public class RubiksCube implements PuzzleState {
 
     /* Rotates the given FACE in the given DIRECTION */
     public void rotate(String face, String direction) {
-        HashMap<CubePosition, Character> tempMap = (HashMap<CubePosition, Character>) cubeMap.clone();
+        HashMap<CubePosition, Character> storageMap = fillStorageMap(face);
         for (int i = 1; i <= 8; i += 1) { // update face values
             int nextPos;
             char value;
             if (i <= 4) { // edge
                 nextPos = ps.nextEdge(face, face, i, direction);
-                value = tempMap.get(new CubePosition(face, i));
+                value = storageMap.get(new CubePosition(face, i));
             } else { // corner
-                value = tempMap.get(new CubePosition(face, i));
+                value = storageMap.get(new CubePosition(face, i));
                 nextPos = ps.nextCorner(face, face, i, direction);
             }
             cubeMap.put(new CubePosition(face, nextPos), value);
@@ -99,11 +94,38 @@ public class RubiksCube implements PuzzleState {
             } else {
                 nextPos = ps.nextCorner(face, nextFace, pos, direction);
             }
-            char value = tempMap.get(cp);
+            char value = storageMap.get(cp);
             cubeMap.put(new CubePosition(nextFace, nextPos), value);
         }
-        moveStack.push((HashMap<CubePosition, Character>) cubeMap.clone()); // invariant: top element of the stack is always the current state
         updateCubeArr();
+        moveStack.push(deepCopy(cubeArr)); // invariant: top element of the stack is always the current state
+    }
+
+    private HashMap<CubePosition, Character> fillStorageMap(String face) {
+        HashMap<CubePosition, Character> storageMap = new HashMap<>();
+        for (int i = 1; i <= 8; i += 1) { // copy face values
+            CubePosition cp = new CubePosition(face, i);
+            char value = cubeMap.get(cp);
+            storageMap.put(cp, value);
+        }
+        List<CubePosition> adjPositions = adjCubePositions.get(face);
+        for (CubePosition adjPosition: adjPositions) { // copy adjacent position values
+            char value = cubeMap.get(adjPosition);
+            storageMap.put(adjPosition, value);
+        }
+        return storageMap;
+    }
+
+    /**
+     * Makes a deep copy of a 2D array
+     * @source https://stackoverflow.com/questions/1564832/how-do-i-do-a-deep-copy-of-a-2d-array-in-java
+     */
+    private char[][] deepCopy(char[][] arr) {
+        char[][] copy = new char[arr.length][];
+        for (int i = 0; i < arr.length; i += 1) {
+            copy[i] = Arrays.copyOf(arr[i], arr[i].length);
+        }
+        return copy;
     }
 
     /////////////////////////////////////////////
@@ -140,6 +162,11 @@ public class RubiksCube implements PuzzleState {
         printCube();
     }
 
+    public boolean equals(PuzzleState other) {
+        RubiksCube otherCube = (RubiksCube) other;
+        return this.cubeMap.equals(otherCube.cubeMap);
+    }
+
     //////////////////////
     /* OTHER OPERATIONS */
     //////////////////////
@@ -155,8 +182,8 @@ public class RubiksCube implements PuzzleState {
             return;
         }
         moveStack.pop(); // removes the current state from the stack
-        cubeMap = moveStack.peek(); // restores the state before the current state
-        updateCubeArr();
+        cubeArr = moveStack.peek(); // restores the state before the current state
+        updateCubeMap();
     }
 
     /* Scrambles the Rubik's Cube with a minimum
@@ -172,9 +199,9 @@ public class RubiksCube implements PuzzleState {
         }
     }
 
-    /////////////////////////////
-    /* UPDATING THE CUBE ARRAY */
-    /////////////////////////////
+    ///////////////////////////////////
+    /* UPDATING THE CUBE ARRAY & MAP */
+    ///////////////////////////////////
 
     /* Updates cubeArr to match cubeMap */
     private void updateCubeArr() {
@@ -245,6 +272,57 @@ public class RubiksCube implements PuzzleState {
         }
     }
 
+    /* Updates cubeMap to match cubeArr */
+    private void updateCubeMap() {
+        for (int row = 0; row < 9; row += 1) {
+            for (int col = 0; col < 12; col += 1) {
+                if (cubeArr[row][col] == '-') {
+                    continue;
+                } else if (row <= 2) {
+                    putInCubeMap("orange", row, col);
+                } else if (row >= 6) {
+                    putInCubeMap("red", row, col);
+                } else if (col <= 2) {
+                    putInCubeMap("green", row, col);
+                } else if (col <= 5) {
+                    putInCubeMap("white", row, col);
+                } else if (col <= 8) {
+                    putInCubeMap("blue", row, col);
+                } else if (col <= 11) {
+                    putInCubeMap("yellow", row, col);
+                }
+            }
+        }
+    }
+
+    private void putInCubeMap(String face, int row, int col) {
+        if (row == 0 || row == 6 || row == 3) {
+            if (col == 3 || col == 0 || col == 6 || col == 9) {
+                cubeMap.put(new CubePosition(face, 5), cubeArr[row][col]);
+            } else if (col == 4 || col == 1 || col == 7 || col == 10) {
+                cubeMap.put(new CubePosition(face, 2), cubeArr[row][col]);
+            } else if (col == 5 || col == 2 || col == 8 || col == 11) {
+                cubeMap.put(new CubePosition(face, 6), cubeArr[row][col]);
+            }
+        } else if (row == 1 || row == 7 || row == 4) {
+            if (col == 3 || col == 0 || col == 6 || col == 9) {
+                cubeMap.put(new CubePosition(face, 1), cubeArr[row][col]);
+            } else if (col == 4 || col == 1 || col == 7 || col == 10) {
+                cubeMap.put(new CubePosition(face, 9), cubeArr[row][col]);
+            } else if (col == 5 || col == 2 || col == 8 || col == 11) {
+                cubeMap.put(new CubePosition(face, 3), cubeArr[row][col]);
+            }
+        } else if (row == 2 || row == 8 || row == 5) {
+            if (col == 3 || col == 0 || col == 6 || col == 9) {
+                cubeMap.put(new CubePosition(face, 8), cubeArr[row][col]);
+            } else if (col == 4 || col == 1 || col == 7 || col == 10) {
+                cubeMap.put(new CubePosition(face, 4), cubeArr[row][col]);
+            } else if (col == 5 || col == 2 || col == 8 || col == 11) {
+                cubeMap.put(new CubePosition(face, 7), cubeArr[row][col]);
+            }
+        }
+    }
+
     ///////////////////////
     /* PRINTING THE CUBE */
     ///////////////////////
@@ -300,7 +378,7 @@ public class RubiksCube implements PuzzleState {
     }
 
     /* Appropriately fills faceMap */
-    private void populateFaceMap() {
+    private static void populateFaceMap() {
         faceMap.put("white", new FaceSequence("orange", "blue", "red", "green"));
         faceMap.put("orange", new FaceSequence("yellow", "blue", "white", "green"));
         faceMap.put("yellow", new FaceSequence("red", "blue", "orange", "green"));
@@ -396,7 +474,7 @@ public class RubiksCube implements PuzzleState {
     }
 
     /* Initializes the 2D array to all empty chars as placeholders */
-    private void initializeWithPlaceholders(char[][] arr) {
+    private static void initializeWithPlaceholders(char[][] arr) {
         for (int row = 0; row < arr.length; row += 1) {
             for (int index = 0; index < arr[row].length; index += 1) {
                 arr[row][index] = '-';
@@ -405,7 +483,7 @@ public class RubiksCube implements PuzzleState {
     }
 
     /* Associates numbers and moves */
-    private void populateMoveMap() {
+    private static void populateMoveMap() {
         moveMap.put(1, new Move("white", "cw"));
         moveMap.put(2, new Move("white", "ccw"));
         moveMap.put(3, new Move("yellow", "cw"));
@@ -433,7 +511,14 @@ public class RubiksCube implements PuzzleState {
         moveMap = new HashMap<>();
         populateMoveMap();
         moveStack = new Stack<>();
-        moveStack.push((HashMap<CubePosition, Character>) cubeMap.clone()); // pushes the solved state onto the stack
+        moveStack.push(deepCopy(cubeArr)); // pushes the solved state onto the stack
         myRandom = new Random();
+    }
+
+    /* Transfers all fields to OTHER to avoid recomputation */
+    private void transferNonStaticFieldsFrom(RubiksCube other) {
+        this.cubeMap = (HashMap<CubePosition, Character>) other.cubeMap.clone();
+        this.cubeArr = deepCopy(other.cubeArr);
+        this.moveStack = (Stack<char[][]>) other.moveStack.clone();
     }
 }
