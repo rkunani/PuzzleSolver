@@ -98,13 +98,15 @@ public class RubiksCube implements PuzzleState {
 
     public int distToSolved() {
         Set<CubeUtils.CubePosition> cubePositions = cubeMap.keySet();
-        int sum = 0;
+        int numOutOfPlace = 0;
         for (CubeUtils.CubePosition cp: cubePositions) {
             char value = cubeMap.get(cp);
             String face = cp.face;
-            sum += numMovesAway(value, face);
+            if (face.charAt(0) != value) {
+                numOutOfPlace += 1;
+            }
         }
-        return sum;
+        return numOutOfPlace;
     }
 
     public void printState() {
@@ -116,47 +118,29 @@ public class RubiksCube implements PuzzleState {
         return this.cubeMap.equals(otherCube.cubeMap);
     }
 
-    /* Returns the minimum number of rotations to put VALUE on the correct face */
-    private static int numMovesAway(char value, String currFace) {
-        if (opposite(currFace) == value) {
-            return 2;
-        }
-        return 1;
-    }
-
-    /* Returns the character corresponding to the face opposite from FACE */
-    private static char opposite(String face) {
-        if (face.equals("white")) {
-            return 'y';
-        } else if (face.equals("yellow")) {
-            return 'w';
-        } else if (face.equals("green")) {
-            return 'b';
-        } else if (face.equals("blue")) {
-            return 'g';
-        } else if (face.equals("red")) {
-            return 'y';
-        } else { // face is "yellow"
-            return 'r';
-        }
-    }
-
     //////////////////////
     /* OTHER OPERATIONS */
     //////////////////////
 
-    /* Undoes the previous CubeUtils.Move */
+    /* Resets the cube to a solved state */
+    public void resetCube() {
+        while(!isSolved()) {
+            undoMove();
+        }
+    }
+
+    /* Undoes the previous move */
     public void undoMove() {
         if (isSolved()) {
             return;
         }
-        moveStack.pop(); // reCubeUtils.Moves the current state from the stack
+        moveStack.pop(); // removes the current state from the stack
         cubeArr = moveStack.peek(); // restores the state before the current state
         updateCubeMap();
     }
 
     /* Scrambles the Rubik's Cube with a minimum
-     * of 15 CubeUtils.Moves and a maximum of 25 CubeUtils.Moves */
+     * of 15 moves and a maximum of 25 moves */
     public void scramble() {
         int numMoves = myRandom.nextInt(25) + 15;
         for (int i = 0; i < numMoves; i += 1) {

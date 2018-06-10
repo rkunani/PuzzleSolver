@@ -10,5 +10,7 @@ public class Scratch {
         //cube.rotate("orange", "ccw");
         //cube.printCube();
         Solver s = new Solver(cube);
+        //cube.resetCube();
+        //cube.printCube();
     }
 }
