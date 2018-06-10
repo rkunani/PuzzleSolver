@@ -33,6 +33,9 @@ public class Solver {
     public Solver(PuzzleState initialState) {
         PriorityQueue<PSNode> fringe = new PriorityQueue<>();
         solution = new LinkedList<>();
+        System.out.println("Initial state: ");
+        initialState.printState();
+        System.out.println("\nSolving...");
 
         PSNode startNode = new PSNode(initialState, 0, null);
         fringe.add(startNode);
@@ -52,16 +55,14 @@ public class Solver {
             solution.addFirst(bestNode.ps);
             bestNode = bestNode.prev;
         }
-        System.out.println("Found a solution!");
-    }
-
-    /* Returns the number of moves needed to solve the PuzzleState */
-    public int getNumMoves() {
-        return numMoves;
+        System.out.println("Found a solution with " + numMoves + " moves!\n");
+        printSolution();
     }
 
     /* Prints the steps to the solved state */
     public void printSolution() {
-
+        for (PuzzleState ps: solution) {
+            ps.printState();
+        }
     }
 }

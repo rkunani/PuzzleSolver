@@ -8,6 +8,7 @@ public class Scratch {
         cube.rotate("green", "cw");
         cube.rotate("yellow", "ccw");
         //cube.rotate("orange", "ccw");
+        //cube.printCube();
         Solver s = new Solver(cube);
     }
 }
