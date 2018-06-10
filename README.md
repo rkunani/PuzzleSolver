@@ -13,7 +13,7 @@ A Java program that represents a Rubik's Cube and solves puzzles using the A* se
 
 **More About ```RubiksCube.java```**
 
-RubiksCube.java assumes a fixed orientation of the cube with the white face in front, the orange face on top, and the green face on the left.
+```RubiksCube.java``` assumes a fixed orientation of the cube with the white face in front, the orange face on top, and the green face on the left.
 Thus, the solved state of the cube (when unfolded) is represented as follows:
 
 \- - - o o o - - - - - -
