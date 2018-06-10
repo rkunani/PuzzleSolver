@@ -9,7 +9,7 @@ A Java program that represents a Rubik's Cube and solves puzzles using the A* se
 
 - ```RubiksCube.java```: Represents a 3x3 Rubik's Cube
 
-- ```CubeUtils.java```: Contains classes and methods to facilitate RubiksCube operations
+- ```CubeUtils.java```: Contains classes and methods to facilitate ```RubiksCube``` operations
 
 **More About ```RubiksCube.java```**
 
@@ -50,6 +50,6 @@ Example operations are shown in ```Demo.java```.
 
 **Improvements to be made**
 
-- ```Solver.java``` can quickly solve "almost solved" cubes (~4 rotations from solved), but it finds an unnecessarily long solution (~15 moves). This tells me that my implementation of ```distToSolved()``` is not a good heuristic for A*. Thus, rethinking my implementation would allow ```Solver.java``` to solve not only more cubes, but solve them more efficiently.
+- ```Solver.java``` can quickly solve "almost solved" cubes (~4 rotations from solved), but it finds an unnecessarily long solution (~15 moves). For cubes that are not "almost solved," an ```OutofMemoryError``` is thrown due to repeated/compounded exploration of states far from the solution. These two occurrences tell me that my implementation of ```distToSolved()``` is not a good heuristic for A*. Thus, rethinking my implementation would allow ```Solver.java``` to solve not only more cubes, but solve them more efficiently.
 
 - There is probably a cleaner way to represent a Rubik's Cube than the way I did. Due to my choice of data structure, at times I felt my methods were less elegant than they could be. An improvement I would like to make is to find a better use of data structures to represent the Rubik's Cube.
