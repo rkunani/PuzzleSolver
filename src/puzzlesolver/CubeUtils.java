@@ -43,7 +43,7 @@ public class CubeUtils {
             return stringHash + posHash;
         }
     }
-///
+
     public static class FaceSequence {
         private String[] arr;
 
@@ -55,6 +55,7 @@ public class CubeUtils {
             arr[3] = fourth;
         }
 
+        /* Returns the face after oldFace when rotating in the given DIRECTION */
         public String nextFace(String oldFace, String direction) {
             int arrIndex = getArrIndex(oldFace);
             int nextIndex;
@@ -66,6 +67,7 @@ public class CubeUtils {
             return arr[nextIndex];
         }
 
+        /* Converts the FaceSequence into a List */
         public List<String> toList() {
             List<String> faceList = new ArrayList<>();
             for (int i = 0; i < arr.length; i += 1) {
@@ -120,6 +122,7 @@ public class CubeUtils {
             }
         }
 
+        /* Returns the edge after POS when rotating in the given DIRECTION */
         public int nextEdge(String rotatingFace, String nextFace, int pos, String direction) {
             if (rotatingFace.equals("white") || rotatingFace.equals(nextFace)) {
                 int arrIndex = pos - 1;
@@ -156,6 +159,7 @@ public class CubeUtils {
             }
         }
 
+        /* Returns the corner after POS when rotating in the given DIRECTION */
         public int nextCorner(String rotatingFace, String nextFace, int pos, String direction) {
             if (rotatingFace.equals("white") || rotatingFace.equals(nextFace)) {
                 int arrIndex = pos - 5;
@@ -274,7 +278,7 @@ public class CubeUtils {
         faceMap.put("blue", new FaceSequence("white", "orange", "yellow", "red"));
     }
 
-    /* Appropriately fills adjCubeUtils.CubePositions */
+    /* Appropriately fills adjCubePositions */
     public static void populateAdjCubePositions(HashMap<String, List<CubeUtils.CubePosition>> adjCubePositions, HashMap<String, FaceSequence> faceMap) {
         // white
         List<CubePosition> whiteList = new ArrayList<>();
@@ -428,7 +432,7 @@ public class CubeUtils {
     }
 
     /* Fills the top and bottom faces of the cube */
-    public static void fillTopOrBottom(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, int row, String face) {
+    private static void fillTopOrBottom(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, int row, String face) {
         if (row == 1 || row == 7) {
             cubeArr[row - 1][3] = cubeMap.get(new CubeUtils.CubePosition(face, 5));
             cubeArr[row - 1][4] = cubeMap.get(new CubeUtils.CubePosition(face, 2));
@@ -447,7 +451,7 @@ public class CubeUtils {
     }
 
     /* Fills the middle faces of the cube */
-    public static void fillMiddle(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, int row) {
+    private static void fillMiddle(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, int row) {
         ThreeDigitIterator tdi;
         if (row == 4) {
             tdi = new ThreeDigitIterator(5, 2, 6);
@@ -464,7 +468,7 @@ public class CubeUtils {
     }
 
     /* Helps with segmentation of middle faces */
-    public static void fillRow(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, ThreeDigitIterator tdi, int row) {
+    private static void fillRow(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, ThreeDigitIterator tdi, int row) {
         for (int i = 0; i < 12; i += 1) {
             if (i <= 2) {
                 cubeArr[row - 1][i] = cubeMap.get(new CubeUtils.CubePosition("green", tdi.next()));
@@ -501,7 +505,7 @@ public class CubeUtils {
         }
     }
 
-    public static void putInCubeMap(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, String face, int row, int col) {
+    private static void putInCubeMap(HashMap<CubeUtils.CubePosition, Character> cubeMap, char[][] cubeArr, String face, int row, int col) {
         if (row == 0 || row == 6 || row == 3) {
             if (col == 3 || col == 0 || col == 6 || col == 9) {
                 cubeMap.put(new CubeUtils.CubePosition(face, 5), cubeArr[row][col]);

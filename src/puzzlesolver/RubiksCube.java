@@ -31,7 +31,7 @@ public class RubiksCube implements PuzzleState {
 
     /* Rotates the given FACE in the given DIRECTION */
     public void rotate(String face, String direction) {
-        HashMap<CubeUtils.CubePosition, Character> storageMap = fillStorageMap(face);
+        HashMap<CubeUtils.CubePosition, Character> storageMap = fillStorageMap(face); // avoids cloning
         for (int i = 1; i <= 8; i += 1) { // update face values
             int nextPos;
             char value;
@@ -62,6 +62,7 @@ public class RubiksCube implements PuzzleState {
         moveStack.push(CubeUtils.deepCopy(cubeArr)); // invariant: top element of the stack is always the current state
     }
 
+    /* Creates a map of the CubePositions on and adjacent to FACE */
     private HashMap<CubeUtils.CubePosition, Character> fillStorageMap(String face) {
         HashMap<CubeUtils.CubePosition, Character> storageMap = new HashMap<>();
         for (int i = 1; i <= 8; i += 1) { // copy face values
@@ -161,6 +162,7 @@ public class RubiksCube implements PuzzleState {
         CubeUtils.fillRows(cubeMap, cubeArr);
     }
 
+    /* Updates cubeMap to match cubeArr */
     private void updateCubeMap() {
         CubeUtils.updateCubeMap(cubeMap, cubeArr);
     }
@@ -199,8 +201,8 @@ public class RubiksCube implements PuzzleState {
 
     /* Transfers all fields from OTHER to avoid recomputation */
     private void transferNonStaticFieldsFrom(RubiksCube other) {
-        this.cubeMap = (HashMap<CubeUtils.CubePosition, Character>) other.cubeMap.clone();
+        this.cubeMap = (HashMap<CubeUtils.CubePosition, Character>) other.cubeMap.clone(); // cloning is ok here because CubePosition is immutable
         this.cubeArr = CubeUtils.deepCopy(other.cubeArr);
-        this.moveStack = (Stack<char[][]>) other.moveStack.clone();
+        this.moveStack = (Stack<char[][]>) other.moveStack.clone(); // cloning is ok here because the arrays in the Stack are copies
     }
 }
