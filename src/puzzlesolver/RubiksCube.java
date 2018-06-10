@@ -97,16 +97,14 @@ public class RubiksCube implements PuzzleState {
     }
 
     public int distToSolved() {
-        Set<CubeUtils.CubePosition> adjCubePositions = cubeMap.keySet();
-        int numOutOfPlace = 0;
-        for (CubeUtils.CubePosition cp: adjCubePositions) {
+        Set<CubeUtils.CubePosition> cubePositions = cubeMap.keySet();
+        int sum = 0;
+        for (CubeUtils.CubePosition cp: cubePositions) {
             char value = cubeMap.get(cp);
             String face = cp.face;
-            if (face.charAt(0) != value) {
-                numOutOfPlace += 1;
-            }
+            sum += numMovesAway(value, face);
         }
-        return numOutOfPlace;
+        return sum;
     }
 
     public void printState() {
@@ -116,6 +114,31 @@ public class RubiksCube implements PuzzleState {
     public boolean equals(PuzzleState other) {
         RubiksCube otherCube = (RubiksCube) other;
         return this.cubeMap.equals(otherCube.cubeMap);
+    }
+
+    /* Returns the minimum number of rotations to put VALUE on the correct face */
+    private static int numMovesAway(char value, String currFace) {
+        if (opposite(currFace) == value) {
+            return 2;
+        }
+        return 1;
+    }
+
+    /* Returns the character corresponding to the face opposite from FACE */
+    private static char opposite(String face) {
+        if (face.equals("white")) {
+            return 'y';
+        } else if (face.equals("yellow")) {
+            return 'w';
+        } else if (face.equals("green")) {
+            return 'b';
+        } else if (face.equals("blue")) {
+            return 'g';
+        } else if (face.equals("red")) {
+            return 'y';
+        } else { // face is "yellow"
+            return 'r';
+        }
     }
 
     //////////////////////
