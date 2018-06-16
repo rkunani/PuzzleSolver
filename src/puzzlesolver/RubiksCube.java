@@ -5,12 +5,12 @@ import java.util.*;
 /* A 3x3 Rubik's Cube */
 public class RubiksCube implements PuzzleState {
 
-    private HashMap<CubeUtils.CubePosition, Character> cubeMap; // core representation of the cube
+    private HashMap<CubePosition, Character> cubeMap; // core representation of the cube
     private char[][] cubeArr;
-    private static CubeUtils.PieceSequence ps;
-    private static HashMap<String, CubeUtils.FaceSequence> faceMap;
-    private static HashMap<String, List<CubeUtils.CubePosition>> adjCubePositions;
-    private static HashMap<Integer, CubeUtils.Move> moveMap;
+    private static PieceSequence ps;
+    private static HashMap<String, FaceSequence> faceMap;
+    private static HashMap<String, List<CubePosition>> adjCubePositions;
+    private static HashMap<Integer, Move> moveMap;
     private Stack<char[][]> moveStack;
     private static Random myRandom;
 
@@ -31,21 +31,21 @@ public class RubiksCube implements PuzzleState {
 
     /* Rotates the given FACE in the given DIRECTION */
     public void rotate(String face, String direction) {
-        HashMap<CubeUtils.CubePosition, Character> storageMap = fillStorageMap(face); // avoids cloning
+        HashMap<CubePosition, Character> storageMap = fillStorageMap(face); // avoids cloning
         for (int i = 1; i <= 8; i += 1) { // update face values
             int nextPos;
             char value;
             if (i <= 4) { // edge
                 nextPos = ps.nextEdge(face, face, i, direction);
-                value = storageMap.get(new CubeUtils.CubePosition(face, i));
+                value = storageMap.get(new CubePosition(face, i));
             } else { // corner
-                value = storageMap.get(new CubeUtils.CubePosition(face, i));
+                value = storageMap.get(new CubePosition(face, i));
                 nextPos = ps.nextCorner(face, face, i, direction);
             }
-            cubeMap.put(new CubeUtils.CubePosition(face, nextPos), value);
+            cubeMap.put(new CubePosition(face, nextPos), value);
         }
-        List<CubeUtils.CubePosition> adjPositions = adjCubePositions.get(face);
-        for (CubeUtils.CubePosition cp: adjPositions) { // update adjacent face values
+        List<CubePosition> adjPositions = adjCubePositions.get(face);
+        for (CubePosition cp: adjPositions) { // update adjacent face values
             String oldFace = cp.face;
             int pos = cp.position;
             String nextFace = faceMap.get(face).nextFace(oldFace, direction);
@@ -56,22 +56,22 @@ public class RubiksCube implements PuzzleState {
                 nextPos = ps.nextCorner(face, nextFace, pos, direction);
             }
             char value = storageMap.get(cp);
-            cubeMap.put(new CubeUtils.CubePosition(nextFace, nextPos), value);
+            cubeMap.put(new CubePosition(nextFace, nextPos), value);
         }
         updateCubeArr();
         moveStack.push(CubeUtils.deepCopy(cubeArr)); // invariant: top element of the stack is always the current state
     }
 
     /* Creates a map of the CubePositions on and adjacent to FACE */
-    private HashMap<CubeUtils.CubePosition, Character> fillStorageMap(String face) {
-        HashMap<CubeUtils.CubePosition, Character> storageMap = new HashMap<>();
+    private HashMap<CubePosition, Character> fillStorageMap(String face) {
+        HashMap<CubePosition, Character> storageMap = new HashMap<>();
         for (int i = 1; i <= 8; i += 1) { // copy face values
-            CubeUtils.CubePosition cp = new CubeUtils.CubePosition(face, i);
+            CubePosition cp = new CubePosition(face, i);
             char value = cubeMap.get(cp);
             storageMap.put(cp, value);
         }
-        List<CubeUtils.CubePosition> adjPositions = adjCubePositions.get(face);
-        for (CubeUtils.CubePosition adjPosition: adjPositions) { // copy adjacent position values
+        List<CubePosition> adjPositions = adjCubePositions.get(face);
+        for (CubePosition adjPosition: adjPositions) { // copy adjacent position values
             char value = cubeMap.get(adjPosition);
             storageMap.put(adjPosition, value);
         }
@@ -87,7 +87,7 @@ public class RubiksCube implements PuzzleState {
     public Iterable<PuzzleState> adjacentStates() {
         List<PuzzleState> adjacent = new ArrayList<>();
         for (int i = 1; i <= 12; i += 1) {
-            CubeUtils.Move move = moveMap.get(i);
+            Move move = moveMap.get(i);
             String face = move.face;
             String direction = move.direction;
             rotate(face, direction);
@@ -98,9 +98,9 @@ public class RubiksCube implements PuzzleState {
     }
 
     public int distToSolved() {
-        Set<CubeUtils.CubePosition> cubePositions = cubeMap.keySet();
+        Set<CubePosition> cubePositions = cubeMap.keySet();
         int numOutOfPlace = 0;
-        for (CubeUtils.CubePosition cp: cubePositions) {
+        for (CubePosition cp: cubePositions) {
             char value = cubeMap.get(cp);
             String face = cp.face;
             if (face.charAt(0) != value) {
@@ -146,7 +146,7 @@ public class RubiksCube implements PuzzleState {
         int numMoves = myRandom.nextInt(25) + 15;
         for (int i = 0; i < numMoves; i += 1) {
             int moveNum = myRandom.nextInt(12) + 1;
-            CubeUtils.Move move = moveMap.get(moveNum);
+            Move move = moveMap.get(moveNum);
             String face = move.face;
             String direction = move.direction;
             rotate(face, direction);
@@ -187,7 +187,7 @@ public class RubiksCube implements PuzzleState {
         cubeArr =  new char[9][12]; // 9 rows, each with length 12
         CubeUtils.initializeWithPlaceholders(cubeArr);
         updateCubeArr();
-        ps = new CubeUtils.PieceSequence();
+        ps = new PieceSequence();
         faceMap = new HashMap<>();
         CubeUtils.populateFaceMap(faceMap);
         adjCubePositions = new HashMap<>();
@@ -201,7 +201,7 @@ public class RubiksCube implements PuzzleState {
 
     /* Transfers all fields from OTHER to avoid recomputation */
     private void transferNonStaticFieldsFrom(RubiksCube other) {
-        this.cubeMap = (HashMap<CubeUtils.CubePosition, Character>) other.cubeMap.clone(); // cloning is ok here because CubePosition is immutable
+        this.cubeMap = (HashMap<CubePosition, Character>) other.cubeMap.clone(); // cloning is ok here because CubePosition is immutable
         this.cubeArr = CubeUtils.deepCopy(other.cubeArr);
         this.moveStack = (Stack<char[][]>) other.moveStack.clone(); // cloning is ok here because the arrays in the Stack are copies
     }
