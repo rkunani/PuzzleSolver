@@ -9,7 +9,9 @@ A Java program that represents a Rubik's Cube and solves puzzles using the A* se
 
 - ```RubiksCube.java```: Represents a 3x3 Rubik's Cube
 
-- ```CubeUtils.java```: Contains classes and methods to facilitate ```RubiksCube``` operations
+  - The following should be private nested classes within ```RubiksCube.java``` but I left them as public classes for readability.
+
+- ```CubeUtils.java```: Contains methods to facilitate ```RubiksCube``` operations
 
 **More About ```RubiksCube.java```**
 
