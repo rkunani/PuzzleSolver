@@ -1,7 +1,7 @@
 # PuzzleSolver
 A Java program that represents a Rubik's Cube and solves puzzles using the A* search algorithm. (WORK IN PROGRESS)
 
-**Files:**
+**File Overview:**
 
 - ```PuzzleState.java```: An interface to enable the use of A*
 
@@ -11,7 +11,15 @@ A Java program that represents a Rubik's Cube and solves puzzles using the A* se
 
   - The following should be private nested classes within ```RubiksCube.java``` but I left them as public classes for readability.
   
-    - ```CubePosition.java```: Represents a static position on the cube.
+    - ```CubePosition.java```
+    
+    - ```PieceSequence.java```
+    
+    - ```FaceSequence.java```
+    
+    - ```ThreeDigitIterator.java```
+    
+    - ```Move.java```
     
 - ```CubeUtils.java```: Contains methods to facilitate ```RubiksCube``` operations
 
