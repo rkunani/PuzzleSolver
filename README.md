@@ -62,6 +62,6 @@ Example operations are shown in ```Demo.java```.
 
 **Improvements to be made**
 
-- ```Solver.java``` can quickly solve "almost solved" cubes (~4 rotations from solved), but it finds an unnecessarily long solution (~15 moves). For cubes that are not "almost solved," an ```OutofMemoryError``` is thrown due to repeated/compounded exploration of states far from the solution. These two occurrences tell me that my implementation of ```distToSolved()``` is not a good heuristic for A*. Thus, rethinking my implementation would allow ```Solver.java``` to solve not only more cubes, but solve them more efficiently.
+- ```Solver.java``` can quickly solve "almost solved" cubes (~4 rotations from solved), but it finds an unnecessarily long solution (~15 moves). For cubes that are not "almost solved," an ```OutofMemoryError``` is thrown due to compounded exploration of states far from the solution. These two occurrences tell me that my implementation of ```distToSolved()``` is not a good heuristic for A*. Thus, rethinking my implementation would allow ```Solver.java``` to solve not only more cubes, but solve them more efficiently.
 
 - There is probably a cleaner way to represent a Rubik's Cube than the way I did. Due to my choice of data structure, at times I felt my methods were less elegant than they could be. An improvement I would like to make is to find a better use of data structures to represent the Rubik's Cube.
